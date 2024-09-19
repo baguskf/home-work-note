@@ -1,8 +1,9 @@
 import 'package:curd_flutter/colors/colors.dart';
-import 'package:curd_flutter/ui/home_screen.dart';
+import 'package:curd_flutter/firebase_controler.dart';
 import 'package:curd_flutter/ui/register_screen.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class LoginScreen extends StatefulWidget {
   static const routeName = '/login_screen';
@@ -118,7 +119,20 @@ class LoginForm extends StatefulWidget {
 }
 
 class _LoginFormState extends State<LoginForm> {
+  final _email = TextEditingController();
+  final _pass = TextEditingController();
+  String? _errorMessage;
+  String? _emailError;
   bool _isObscure = true;
+  final authController = Get.find<FirebaeControler>();
+
+  @override
+  void dispose() {
+    _email.dispose();
+    _pass.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -142,35 +156,59 @@ class _LoginFormState extends State<LoginForm> {
               ],
             ),
           ),
-          const TextField(
+          TextField(
+            controller: _email,
             decoration: InputDecoration(
-              prefixIcon: Icon(
+              prefixIcon: const Icon(
                 Icons.email_outlined,
                 color: neutralBlack,
               ),
-              label: Text(
+              label: const Text(
                 'Email',
                 style: TextStyle(fontFamily: 'myfont'),
               ),
-              labelStyle: TextStyle(color: neutralBlack),
-              enabledBorder: OutlineInputBorder(
+              labelStyle: const TextStyle(color: neutralBlack),
+              enabledBorder: const OutlineInputBorder(
                 borderSide: BorderSide(color: neutralBlack),
                 borderRadius: BorderRadius.all(
                   Radius.circular(20),
                 ),
               ),
-              focusedBorder: OutlineInputBorder(
+              focusedBorder: const OutlineInputBorder(
                 borderSide: BorderSide(color: primary700),
                 borderRadius: BorderRadius.all(
                   Radius.circular(20),
                 ),
               ),
+              errorBorder: OutlineInputBorder(
+                borderSide: const BorderSide(color: Colors.red, width: 1.5),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              focusedErrorBorder: OutlineInputBorder(
+                borderSide: const BorderSide(color: Colors.red, width: 1.5),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              errorText: _emailError,
             ),
+            onChanged: (value) {
+              setState(() {
+                // Simple email validation
+                if (value.isEmpty) {
+                  _emailError = 'Email tidak boleh kosong';
+                } else if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[a-zA-Z]{2,}$')
+                    .hasMatch(value)) {
+                  _emailError = 'Email tidak valid';
+                } else {
+                  _emailError = null; // Clear the error message when valid
+                }
+              });
+            },
           ),
           const SizedBox(
             height: 20,
           ),
           TextField(
+            controller: _pass,
             obscureText: _isObscure,
             decoration: InputDecoration(
               prefixIcon: const Icon(
@@ -205,7 +243,28 @@ class _LoginFormState extends State<LoginForm> {
                   Radius.circular(20),
                 ),
               ),
+              errorBorder: OutlineInputBorder(
+                borderSide: const BorderSide(color: Colors.red, width: 1.5),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              focusedErrorBorder: OutlineInputBorder(
+                borderSide: const BorderSide(color: Colors.red, width: 1.5),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              errorText: _errorMessage,
             ),
+            onChanged: (value) {
+              setState(() {
+                if (value.isEmpty) {
+                  _errorMessage = 'Password tidak boleh kosong';
+                } else if (value.length < 8) {
+                  _errorMessage =
+                      'Password harus terdiri dari minimal 8 karakter';
+                } else {
+                  _errorMessage = null; // Clear the error message when valid
+                }
+              });
+            },
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -242,6 +301,9 @@ class _LoginFormState extends State<LoginForm> {
               )
             ],
           ),
+          const SizedBox(
+            height: 10,
+          ),
           DecoratedBox(
             decoration: BoxDecoration(
               gradient: const LinearGradient(
@@ -255,9 +317,7 @@ class _LoginFormState extends State<LoginForm> {
               borderRadius: BorderRadius.circular(20),
             ),
             child: ElevatedButton(
-              onPressed: () {
-                Navigator.pushNamed(context, HomeScreen.routeName);
-              },
+              onPressed: () => authController.login(_email.text, _pass.text),
               style: ElevatedButton.styleFrom(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),

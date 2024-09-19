@@ -1,3 +1,4 @@
+import 'package:curd_flutter/ui/add_data.dart';
 import 'package:curd_flutter/ui/home_screen.dart';
 import 'package:curd_flutter/ui/login_screen.dart';
 import 'package:curd_flutter/ui/register_screen.dart';
@@ -21,20 +22,45 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<User?>(
-        stream: authController.streamAuth,
-        builder: (context, snapshot) {
-          // ignore: avoid_print
-          print('ini : $snapshot');
+      stream: authController.streamAuth,
+      builder: (context, snapshot) {
+        // ignore: avoid_print
+        print('ini : $snapshot');
+        if (snapshot.connectionState == ConnectionState.active) {
           return GetMaterialApp(
             title: 'Flutter Demo',
             theme: ThemeData(),
-            initialRoute: HomeScreen.routeName,
-            routes: {
-              HomeScreen.routeName: (context) => const HomeScreen(),
-              LoginScreen.routeName: (context) => const LoginScreen(),
-              RegisterScreen.routeName: (context) => const RegisterScreen(),
-            },
+            initialRoute: snapshot.data != null
+                ? HomeScreen.routeName
+                : LoginScreen.routeName,
+            getPages: [
+              GetPage(
+                name: HomeScreen.routeName,
+                page: () => const HomeScreen(),
+              ),
+              GetPage(
+                name: LoginScreen.routeName,
+                page: () => const LoginScreen(),
+              ),
+              GetPage(
+                name: RegisterScreen.routeName,
+                page: () => const RegisterScreen(),
+              ),
+              GetPage(
+                name: AddData.routeName,
+                page: () => const AddData(),
+              ),
+            ],
           );
-        });
+        }
+        return const MaterialApp(
+          home: Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          ),
+        );
+      },
+    );
   }
 }
