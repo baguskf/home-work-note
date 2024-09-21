@@ -2,7 +2,7 @@ import 'package:curd_flutter/ui/add_data.dart';
 import 'package:curd_flutter/ui/home_screen.dart';
 import 'package:curd_flutter/ui/login_screen.dart';
 import 'package:curd_flutter/ui/register_screen.dart';
-import 'package:curd_flutter/firebase_controler.dart';
+import 'package:curd_flutter/controller/firebase_controler.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
             title: 'Flutter Demo',
             theme: ThemeData(),
             initialRoute: snapshot.data != null
-                ? HomeScreen.routeName
+                ? AddData.routeName
                 : LoginScreen.routeName,
             getPages: [
               GetPage(

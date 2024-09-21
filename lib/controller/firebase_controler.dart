@@ -11,13 +11,53 @@ class FirebaeControler extends GetxController {
 
   Stream<User?> get streamAuth => auth.authStateChanges();
 
+  void reset(String email) async {
+    if (email.isNotEmpty) {
+      try {
+        await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+
+        Get.back();
+        Get.snackbar(
+          "Berhasil",
+          "Link Reset Password Dikirim ke Email Anda",
+          snackPosition: SnackPosition.BOTTOM,
+          duration: const Duration(seconds: 2),
+          margin: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(20),
+          borderRadius: 10,
+        );
+      } catch (e) {
+        Get.back();
+        Get.snackbar(
+          "Error",
+          "Format Email Salah",
+          snackPosition: SnackPosition.BOTTOM,
+          duration: const Duration(seconds: 2),
+          margin: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(20),
+          borderRadius: 10,
+        );
+      }
+    } else {
+      Get.back();
+      Get.snackbar(
+        "Error",
+        "Silahkan Masukkan Email",
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 2),
+        margin: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
+        borderRadius: 10,
+      );
+    }
+  }
+
   void register(String email, String password, String name) async {
     Get.dialog(
       const Center(
         child: CircularProgressIndicator(),
       ),
-      barrierDismissible:
-          false, // Supaya tidak bisa ditutup selama proses berjalan
+      barrierDismissible: false,
     );
     try {
       UserCredential userCredential = await auth.createUserWithEmailAndPassword(
@@ -76,14 +116,15 @@ class FirebaeControler extends GetxController {
       const Center(
         child: CircularProgressIndicator(),
       ),
-      barrierDismissible:
-          false, // Supaya tidak bisa ditutup selama proses berjalan
+      barrierDismissible: false,
     );
     try {
       await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: email, password: pass);
+      Get.back();
       Get.offAllNamed(HomeScreen.routeName);
     } on FirebaseAuthException catch (e) {
+      Get.back();
       String errorMessage = _getErrorMessage(e.code);
 
       Get.dialog(
@@ -111,7 +152,8 @@ class FirebaeControler extends GetxController {
       'wrong-password': 'Password salah',
       'invalid-email': 'Email tidak valid',
       'weak-password': 'Password terlalu lemah',
-      'email-already-in-use': 'Email sudah digunakan'
+      'email-already-in-use': 'Email sudah digunakan',
+      'The email address is badly formatted': 'Format email salah'
     };
     return errorMessages[errorCode] ?? 'Terjadi kesalahan: $errorCode';
   }

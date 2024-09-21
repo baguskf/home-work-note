@@ -1,5 +1,5 @@
 import 'package:curd_flutter/colors/colors.dart';
-import 'package:curd_flutter/firebase_controler.dart';
+import 'package:curd_flutter/controller/firebase_controler.dart';
 import 'package:curd_flutter/ui/register_screen.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -121,6 +121,8 @@ class LoginForm extends StatefulWidget {
 class _LoginFormState extends State<LoginForm> {
   final _email = TextEditingController();
   final _pass = TextEditingController();
+  final _dialog = TextEditingController();
+
   String? _errorMessage;
   String? _emailError;
   bool _isObscure = true;
@@ -130,6 +132,7 @@ class _LoginFormState extends State<LoginForm> {
   void dispose() {
     _email.dispose();
     _pass.dispose();
+    _dialog.dispose();
     super.dispose();
   }
 
@@ -157,6 +160,7 @@ class _LoginFormState extends State<LoginForm> {
             ),
           ),
           TextField(
+            style: const TextStyle(fontFamily: 'myfont'),
             controller: _email,
             decoration: InputDecoration(
               prefixIcon: const Icon(
@@ -191,23 +195,25 @@ class _LoginFormState extends State<LoginForm> {
               errorText: _emailError,
             ),
             onChanged: (value) {
-              setState(() {
-                // Simple email validation
-                if (value.isEmpty) {
-                  _emailError = 'Email tidak boleh kosong';
-                } else if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[a-zA-Z]{2,}$')
-                    .hasMatch(value)) {
-                  _emailError = 'Email tidak valid';
-                } else {
-                  _emailError = null; // Clear the error message when valid
-                }
-              });
+              setState(
+                () {
+                  if (value.isEmpty) {
+                    _emailError = 'Email tidak boleh kosong';
+                  } else if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[a-zA-Z]{2,}$')
+                      .hasMatch(value)) {
+                    _emailError = 'Email tidak valid';
+                  } else {
+                    _emailError = null;
+                  }
+                },
+              );
             },
           ),
           const SizedBox(
             height: 20,
           ),
           TextField(
+            style: const TextStyle(fontFamily: 'myfont'),
             controller: _pass,
             obscureText: _isObscure,
             decoration: InputDecoration(
@@ -261,10 +267,66 @@ class _LoginFormState extends State<LoginForm> {
                   _errorMessage =
                       'Password harus terdiri dari minimal 8 karakter';
                 } else {
-                  _errorMessage = null; // Clear the error message when valid
+                  _errorMessage = null;
                 }
               });
             },
+          ),
+          Padding(
+            padding: const EdgeInsets.all(15),
+            child: Container(
+              alignment: Alignment.centerRight,
+              child: RichText(
+                textAlign: TextAlign.right,
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: ' Lupa Password?',
+                      style: const TextStyle(
+                        color: Colors.blue,
+                        fontFamily: 'myfont',
+                        fontSize: 12,
+                      ),
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () {
+                          _resetPassDialog();
+                        },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [
+                  primary700,
+                  Color.fromARGB(255, 47, 0, 255),
+                ],
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+              ),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: ElevatedButton(
+              onPressed: () => authController.login(_email.text, _pass.text),
+              style: ElevatedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                minimumSize: const Size(double.infinity, 50),
+                backgroundColor: Colors.transparent,
+              ),
+              child: const Text(
+                'Login',
+                style: TextStyle(
+                    color: Colors.white, fontSize: 15, fontFamily: 'myfont'),
+              ),
+            ),
+          ),
+          const SizedBox(
+            height: 10,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -301,39 +363,93 @@ class _LoginFormState extends State<LoginForm> {
               )
             ],
           ),
-          const SizedBox(
-            height: 10,
-          ),
-          DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [
-                  primary700,
-                  Color.fromARGB(255, 47, 0, 255),
-                ],
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-              ),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: ElevatedButton(
-              onPressed: () => authController.login(_email.text, _pass.text),
-              style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                minimumSize: const Size(double.infinity, 50),
-                backgroundColor: Colors.transparent,
-              ),
-              child: const Text(
-                'Login',
-                style: TextStyle(
-                    color: Colors.white, fontSize: 15, fontFamily: 'myfont'),
-              ),
-            ),
-          )
         ],
       ),
+    );
+  }
+
+  void _resetPassDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        String? dialogMessage;
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return AlertDialog(
+              title: const Text(
+                'Masukan Email!',
+                style: TextStyle(fontFamily: 'myfont'),
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextField(
+                    style: const TextStyle(fontFamily: 'myfont'),
+                    controller: _dialog,
+                    decoration: InputDecoration(
+                      prefixIcon: const Icon(
+                        Icons.email_outlined,
+                        color: neutralBlack,
+                      ),
+                      label: const Text(
+                        'Email',
+                        style: TextStyle(fontFamily: 'myfont'),
+                      ),
+                      labelStyle: const TextStyle(color: neutralBlack),
+                      enabledBorder: const OutlineInputBorder(
+                        borderSide: BorderSide(color: neutralBlack),
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(20),
+                        ),
+                      ),
+                      focusedBorder: const OutlineInputBorder(
+                        borderSide: BorderSide(color: primary700),
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(20),
+                        ),
+                      ),
+                      errorBorder: OutlineInputBorder(
+                        borderSide:
+                            const BorderSide(color: Colors.red, width: 1.5),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      focusedErrorBorder: OutlineInputBorder(
+                        borderSide:
+                            const BorderSide(color: Colors.red, width: 1.5),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      errorText: dialogMessage,
+                    ),
+                    onChanged: (value) {
+                      setState(() {
+                        if (value.isEmpty) {
+                          dialogMessage = 'Email tidak boleh kosong';
+                        } else if (!RegExp(
+                                r'^[\w-\.]+@([\w-]+\.)+[a-zA-Z]{2,}$')
+                            .hasMatch(value)) {
+                          dialogMessage = 'Email tidak valid';
+                        } else {
+                          dialogMessage = null;
+                        }
+                      });
+                    },
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    authController.reset(_dialog.text);
+                    _dialog.clear();
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 }

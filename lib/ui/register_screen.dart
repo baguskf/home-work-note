@@ -1,5 +1,5 @@
 import 'package:curd_flutter/colors/colors.dart';
-import 'package:curd_flutter/firebase_controler.dart';
+import 'package:curd_flutter/controller/firebase_controler.dart';
 import 'package:curd_flutter/ui/login_screen.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -25,6 +25,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
   String? _errorPass;
   String? _emailError;
   String? _nameError;
+
+  @override
+  void dispose() {
+    _name.dispose();
+    _email.dispose();
+    _pass.dispose();
+    _passconfirm.dispose();
+    super.dispose();
+  }
 
   final authController = Get.find<FirebaeControler>();
   @override
@@ -60,6 +69,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                 ),
                 TextField(
+                  style: const TextStyle(fontFamily: 'myfont'),
+                  maxLength: 20,
                   controller: _name,
                   decoration: InputDecoration(
                     prefixIcon: const Icon(
@@ -94,6 +105,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     errorText: _nameError,
+                    counterText: '',
                   ),
                   onChanged: (value) {
                     setState(
@@ -111,6 +123,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   height: 20,
                 ),
                 TextField(
+                  style: const TextStyle(fontFamily: 'myfont'),
                   controller: _email,
                   decoration: InputDecoration(
                     prefixIcon: const Icon(
@@ -166,6 +179,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   height: 20,
                 ),
                 TextField(
+                  style: const TextStyle(fontFamily: 'myfont'),
                   controller: _pass,
                   obscureText: _isObscure,
                   decoration: InputDecoration(
@@ -232,6 +246,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   height: 20,
                 ),
                 TextField(
+                  style: const TextStyle(fontFamily: 'myfont'),
                   controller: _passconfirm,
                   obscureText: _isObscureCpass,
                   decoration: InputDecoration(
@@ -396,7 +411,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Error'),
+          title: const Text('Register Gagal!'),
           content: const Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
