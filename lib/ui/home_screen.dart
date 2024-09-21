@@ -70,10 +70,8 @@ class _HomeScreenState extends State<HomeScreen> {
           child: FloatingActionButton(
             backgroundColor: Colors.transparent,
             onPressed: () {
-              Navigator.pushNamed(
-                context,
-                AddData.routeName,
-              );
+              Navigator.pushNamed(context, AddData.routeName,
+                  arguments: user!.uid);
             },
             shape: const CircleBorder(),
             child: const Icon(

@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
             title: 'Flutter Demo',
             theme: ThemeData(),
             initialRoute: snapshot.data != null
-                ? AddData.routeName
+                ? HomeScreen.routeName
                 : LoginScreen.routeName,
             getPages: [
               GetPage(
@@ -48,7 +48,7 @@ class MyApp extends StatelessWidget {
               ),
               GetPage(
                 name: AddData.routeName,
-                page: () => const AddData(),
+                page: () => AddData(),
               ),
             ],
           );

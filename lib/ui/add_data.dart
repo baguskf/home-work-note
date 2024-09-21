@@ -4,7 +4,6 @@ import 'package:curd_flutter/controller/firestore_controller.dart';
 import 'package:curd_flutter/ui/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 
 import 'package:intl/intl.dart';
 
@@ -64,6 +63,8 @@ class _InputFieldState extends State<InputField> {
 
   final firestore = Get.put(FirestoreController());
 
+  final String userId = Get.arguments as String;
+
   @override
   void dispose() {
     _nameC.dispose();
@@ -98,58 +99,107 @@ class _InputFieldState extends State<InputField> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            TextField(
-              controller: _nameC,
-              style: const TextStyle(fontFamily: 'myfont', fontSize: 20),
-              cursorColor: neutralBlack,
-              decoration: const InputDecoration(
-                labelText: 'Mata Pelajaran',
-                labelStyle: TextStyle(
-                    fontFamily: 'myfont', fontSize: 20, color: neutralBlack),
-                focusedBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: primary700),
+            Stack(
+              children: [
+                TextField(
+                  controller: _nameC,
+                  style: const TextStyle(fontFamily: 'myfont', fontSize: 20),
+                  cursorColor: neutralBlack,
+                  decoration: const InputDecoration(
+                    labelText: 'Mata Pelajaran',
+                    labelStyle: TextStyle(
+                        fontFamily: 'myfont',
+                        fontSize: 20,
+                        color: neutralBlack),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: primary700),
+                    ),
+                  ),
                 ),
-              ),
+                const Positioned(
+                  right: 0,
+                  top: 12, // Sesuaikan dengan posisi label
+                  child: Text(
+                    '*',
+                    style: TextStyle(
+                      color: Colors.red, // Atur warna sesuai kebutuhan
+                      fontSize: 20,
+                    ),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(
               height: 15,
             ),
-            TextField(
-              controller: _dosenC,
-              style: const TextStyle(fontFamily: 'myfont', fontSize: 20),
-              cursorColor: neutralBlack,
-              decoration: const InputDecoration(
-                labelText: 'Nama Guru/Dosen',
-                labelStyle: TextStyle(
-                    fontFamily: 'myfont', fontSize: 20, color: neutralBlack),
-                focusedBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: primary700),
+            Stack(
+              children: [
+                TextField(
+                  controller: _dosenC,
+                  style: const TextStyle(fontFamily: 'myfont', fontSize: 20),
+                  cursorColor: neutralBlack,
+                  decoration: const InputDecoration(
+                    labelText: 'Nama Guru/Dosen',
+                    labelStyle: TextStyle(
+                        fontFamily: 'myfont',
+                        fontSize: 20,
+                        color: neutralBlack),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: primary700),
+                    ),
+                  ),
                 ),
-              ),
+                const Positioned(
+                  right: 0,
+                  top: 12, // Sesuaikan dengan posisi label
+                  child: Text(
+                    '*',
+                    style: TextStyle(
+                      color: Colors.red, // Atur warna sesuai kebutuhan
+                      fontSize: 20,
+                    ),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(
               height: 15,
             ),
-            TextField(
-              onTap: () => _selectDate(context),
-              controller: _dateController,
-              readOnly: true,
-              style: const TextStyle(fontFamily: 'myfont', fontSize: 20),
-              decoration: InputDecoration(
-                suffixIcon: IconButton(
-                  onPressed: () => _selectDate(context),
-                  icon: const Icon(Icons.calendar_month_outlined),
+            Stack(
+              children: [
+                TextField(
+                  onTap: () => _selectDate(context),
+                  controller: _dateController,
+                  readOnly: true,
+                  style: const TextStyle(fontFamily: 'myfont', fontSize: 20),
+                  decoration: InputDecoration(
+                    suffixIcon: IconButton(
+                      onPressed: () => _selectDate(context),
+                      icon: const Icon(Icons.calendar_month_outlined),
+                    ),
+                    focusedBorder: const UnderlineInputBorder(
+                      borderSide: BorderSide(color: primary700),
+                    ),
+                    labelText: 'Batas Waktu',
+                    labelStyle: const TextStyle(
+                      fontFamily: 'myfont',
+                      fontSize: 20,
+                      color: neutralBlack,
+                    ),
+                  ),
                 ),
-                focusedBorder: const UnderlineInputBorder(
-                  borderSide: BorderSide(color: primary700),
+                const Positioned(
+                  right: 0,
+                  top: 12, // Sesuaikan dengan posisi label
+                  child: Text(
+                    '*',
+                    style: TextStyle(
+                      color: Colors.red, // Atur warna sesuai kebutuhan
+                      fontSize: 20,
+                    ),
+                  ),
                 ),
-                labelText: 'Batas Waktu',
-                labelStyle: const TextStyle(
-                  fontFamily: 'myfont',
-                  fontSize: 20,
-                  color: neutralBlack,
-                ),
-              ),
+              ],
             ),
             const SizedBox(
               height: 15,
@@ -213,8 +263,31 @@ class _InputFieldState extends State<InputField> {
               ),
               child: ElevatedButton(
                 onPressed: () {
-                  firestore.upload(_nameC.text, _dosenC.text,
-                      _dateController.text, _notesC.text);
+                  var name = _nameC.text.toString();
+                  var guru = _dosenC.text.toString();
+                  var date = _dateController.text.toString();
+
+                  if (name.isEmpty && guru.isEmpty && date.isEmpty) {
+                    Get.dialog(
+                      AlertDialog(
+                        title: const Text('Gagal Menyimpan'),
+                        content: const Text('File Bertanda * Wajib Diisi!'),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Get.back(); // Menutup dialog
+                            },
+                            child: const Text('OK'),
+                          ),
+                        ],
+                      ),
+                      barrierDismissible:
+                          false, // Tidak bisa ditutup dengan mengetuk di luar
+                    );
+                  } else {
+                    firestore.upload(_nameC.text, _dosenC.text,
+                        _dateController.text, _notesC.text, userId);
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   shape: RoundedRectangleBorder(

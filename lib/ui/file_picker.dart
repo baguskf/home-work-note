@@ -16,30 +16,7 @@ class SelectFile extends StatefulWidget {
 }
 
 class _SelectFileState extends State<SelectFile> {
-  List<String>? selectedFiles;
   final firestore = Get.find<FirestoreController>();
-
-  Future<void> pickFiles() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['pdf', 'doc', 'docx', 'jpg', 'png'],
-      allowMultiple: true,
-    );
-
-    if (result != null) {
-      setState(
-        () {
-          selectedFiles = result.paths.map((path) => path!).toList();
-        },
-      );
-    }
-  }
-
-  void clearFiles() {
-    setState(() {
-      selectedFiles = null;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,45 +34,53 @@ class _SelectFileState extends State<SelectFile> {
               padding: const EdgeInsets.all(12.0),
               child: Column(
                 children: [
-                  if (selectedFiles == null) ...[
-                    const Text(
-                      'Upload File (Opsional)',
-                      style: TextStyle(fontFamily: 'myfont', fontSize: 15),
-                    ),
-                    const Text(
-                      "'pdf', 'doc', 'docx', 'jpg', 'png'",
-                      style: TextStyle(fontFamily: 'myfont', fontSize: 15),
-                    ),
-                  ] else ...[
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: selectedFiles!
-                          .map((file) => Text(
-                                "* File: ${path.basename(file)}",
+                  Obx(
+                    () {
+                      if (firestore.selectedFiles.isEmpty) {
+                        return Column(
+                          children: [
+                            const Text(
+                              'Upload File (Opsional)',
+                              style:
+                                  TextStyle(fontFamily: 'myfont', fontSize: 15),
+                            ),
+                            const Text(
+                              "'pdf', 'doc', 'docx', 'jpg', 'png'",
+                              style:
+                                  TextStyle(fontFamily: 'myfont', fontSize: 15),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                firestore
+                                    .uploadFile(); // Memanggil fungsi uploadFile
+                              },
+                              child: const Text("Upload file"),
+                            ),
+                          ],
+                        );
+                      } else {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            ...firestore.selectedFiles.map(
+                              (file) => Text(
+                                "* File: ${path.basename(file.path)}",
                                 style: const TextStyle(
                                     fontFamily: 'myfont', fontSize: 15),
-                              ))
-                          .toList(),
-                    ),
-                    TextButton(
-                      onPressed: clearFiles,
-                      child: const Text(
-                        'Clear Files',
-                        style: TextStyle(
-                          color: Colors.blue,
-                        ),
-                      ),
-                    ),
-                  ],
-                  TextButton(
-                    onPressed: () => firestore.uploadFile(),
-                    child: const Text(
-                      'Upload',
-                      style: TextStyle(
-                        color: Colors.blue,
-                      ),
-                    ),
-                  )
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                firestore
+                                    .clearFiles(); // Memanggil fungsi uploadFile
+                              },
+                              child: const Text("Clear file"),
+                            ),
+                          ],
+                        );
+                      }
+                    },
+                  ),
                 ],
               ),
             ),

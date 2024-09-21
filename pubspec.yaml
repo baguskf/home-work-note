@@ -40,6 +40,7 @@ dependencies:
   file_picker: ^8.1.2
   another_dashed_container: ^1.0.0
   path: ^1.9.0
+  uuid: ^4.5.0
   
 
   firebase_auth: ^5.3.0
